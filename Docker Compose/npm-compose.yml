@@ -1,0 +1,24 @@
+services:
+  app:
+    image: 'jc21/nginx-proxy-manager:latest'
+    container_name: nginx_proxy_manager
+    restart: unless-stopped
+    ports:
+      - '80:80'     # Public HTTP Port
+      - '443:443'   # Public HTTPS Port
+      - '81:81'     # Admin Web Port
+    environment:
+      TZ: "Asia/Manila"
+      # Connect to external PostgreSQL using host network
+      DB_POSTGRES_HOST: 'X.X.X.X'  # Or use your server's IP
+      DB_POSTGRES_PORT: '5432'
+      DB_POSTGRES_USER: 'admin'
+      DB_POSTGRES_PASSWORD: '${NPM_DB_PASSWORD}'
+      DB_POSTGRES_NAME: 'npm-db'
+      # Uncomment if IPv6 is not enabled
+      # DISABLE_IPV6: 'true'
+    volumes:
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
+    #extra_hosts:
+    # - "host.docker.internal:host-gateway"
