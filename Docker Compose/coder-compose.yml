@@ -1,0 +1,19 @@
+services:
+  coder:
+    image: ${CODER_REPO:-ghcr.io/coder/coder}:${CODER_VERSION:-latest}
+    container_name: coder
+    restart: unless-stopped
+    ports:
+      - "7080:7080"
+    environment:
+      CODER_PG_CONNECTION_URL: "postgresql://${CODER_DB_USER}:${CODER_DB_PASSWORD}@10.0.0.104:5432/${CODER_DB_NAME}?sslmode=disable"
+      CODER_HTTP_ADDRESS: "0.0.0.0:7080"
+      CODER_ACCESS_URL: "${CODER_ACCESS_URL}"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - coder_home:/home/coder
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  coder_home:

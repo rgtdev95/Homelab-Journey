@@ -1,0 +1,15 @@
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      DOMAIN: "${VAULTWARDEN_DOMAIN:-https://vaultwarden.example.com}"
+      SIGNUPS_ALLOWED: "${VAULTWARDEN_SIGNUPS_ALLOWED:-true}"
+      DATABASE_URL: "postgresql://${VAULTWARDEN_DB_USER}:${VAULTWARDEN_DB_PASSWORD}@X.X.X.X:5432/${VAULTWARDEN_DB_NAME}"
+    volumes:
+      - ./vw-data:/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

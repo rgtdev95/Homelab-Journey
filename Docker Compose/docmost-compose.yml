@@ -1,0 +1,43 @@
+services:
+  docmost:
+    image: docmost/docmost:latest
+    container_name: docmost
+    depends_on:
+      - redis
+    environment:
+      APP_URL: "${DOCMOST_APP_URL:-http://localhost:3000}"
+      APP_SECRET: "${DOCMOST_APP_SECRET}"
+      # Connect to external PostgreSQL
+      DATABASE_URL: "postgresql://${DOCMOST_DB_USER}:${DOCMOST_DB_PASSWORD}@X.X.X.X:5432/${DOCMOST_DB_NAME}?schema=public"
+      REDIS_URL: "redis://redis:6379"
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    volumes:
+      - docmost_data:/app/data/storage
+    networks:
+      - docmost_network
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: docmost_redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    networks:
+      - docmost_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+networks:
+  docmost_network:
+    driver: bridge
+
+volumes:
+  docmost_data:
+    driver: local
+  redis_data:
+    driver: local

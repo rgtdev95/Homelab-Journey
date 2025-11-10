@@ -1,0 +1,70 @@
+services:
+  woodpecker-server:
+    image: woodpeckerci/woodpecker-server:v3.8.0
+    container_name: woodpecker-server
+    restart: always
+    environment:
+      # Server settings
+      - WOODPECKER_HOST=woodpeckerurl  # Change this
+      - WOODPECKER_SERVER_ADDR=:8000
+      
+      # Forgejo integration
+      - WOODPECKER_FORGEJO=true
+      - WOODPECKER_FORGEJO_URL=forgejo URL  # Internal Docker network
+      - WOODPECKER_FORGEJO_CLIENT=${WOODPECKER_FORGEJO_CLIENT}
+      - WOODPECKER_FORGEJO_SECRET=${WOODPECKER_FORGEJO_SECRET}
+      #- WOODPECKER_FORGEJO_SKIP_VERIFY=true
+      
+      # Agent secret (generate a secure random string)
+      - WOODPECKER_AGENT_SECRET=${WOODPECKER_AGENT_SECRET}
+      
+      # Admin user (your Forgejo username)
+      - WOODPECKER_ADMIN=${WOODPECKER_ADMIN}
+      
+      # Optional: Enable registration
+      - WOODPECKER_OPEN=false  # Set to true if you want open registration
+      
+      # Database (using SQLite by default, stored in volume)
+      - WOODPECKER_DATABASE_DRIVER=sqlite3
+      - WOODPECKER_DATABASE_DATASOURCE=/var/lib/woodpecker/woodpecker.sqlite
+    
+    volumes:
+      - ./woodpecker-server-data:/var/lib/woodpecker
+    
+    ports:
+      - "8800:8000"
+      - "9000:9000"  # gRPC port for agents
+    
+    networks:
+      - woodpecker
+      - forgejo
+
+  woodpecker-agent:
+    image: woodpeckerci/woodpecker-agent:v3.8.0
+    container_name: woodpecker-agent-local
+    restart: always
+    depends_on:
+      - woodpecker-server
+    environment:
+      - WOODPECKER_SERVER=woodpecker-server:9000
+      - WOODPECKER_AGENT_SECRET=${WOODPECKER_AGENT_SECRET}
+      
+      # Optional: Set max workflows
+      - WOODPECKER_MAX_WORKFLOWS=4
+      
+      # Optional: Filter labels
+      # - WOODPECKER_FILTER_LABELS=type=local
+      - WOODPECKER_BACKEND_DOCKER_VOLUMES=/var/run/docker.sock:/var/run/docker.sock  # Add this line
+    
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./woodpecker-agent-data:/etc/woodpecker  # Added: Agent config directory
+    networks:
+      - woodpecker
+      
+networks:
+  woodpecker:
+    external: false
+  forgejo:
+    external: true
+    name: forgejo_forgejo  # Connect to Forgejo network
