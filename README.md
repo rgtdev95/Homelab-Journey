@@ -52,3 +52,15 @@ This repository contains Docker Compose setups for the following apps. Each entr
 
 # Guides
 - Installation notes (in-progress): [Installation Guides/readme.md](Installation Guides/readme.md)
+
+# Kubernetes Cluster Setup with Kubeadm
+
+This section provides a simplified guide to setting up a Kubernetes cluster using `kubeadm`. The process is divided into three main steps:
+
+1. **Node Setup**: Prepare all nodes (master and workers) by installing required packages, disabling swap, and configuring the container runtime. Detailed instructions can be found in [Step 1: Node Setup](Kubernetes-cluster/SIMPLIFIED-STEP1-Node-Setup.md).
+
+2. **Cluster Initialization**: Initialize the master node, install a network plugin (Calico), and join worker nodes to the cluster. Additional add-ons like Metrics Server and Local Path Provisioner are also installed. Refer to [Step 2: Cluster Add-ons](Kubernetes-cluster/SIMPLIFIED-STEP2-Cluster-Addons.md).
+
+3. **Ingress and Monitoring**: Set up an Ingress controller and monitoring stack (Prometheus and Grafana) to manage and visualize cluster resources. See [Step 3: Ingress Setup](Kubernetes-cluster/SIMPLIFIED-STEP3-Ingress-Setup.md).
+
+Follow these steps to build a fully functional Kubernetes cluster for your homelab.
